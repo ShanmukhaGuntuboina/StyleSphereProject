@@ -20,88 +20,44 @@ namespace StyleSphere.Controllers
             _context = context;
         }
 
-        // GET: api/Favorites
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Favorite>>> GetFavorites()
+        [HttpGet("{cId}")]
+        public List<Favorite> GetFavoritesForCustomer(int cId)
         {
-            return await _context.Favorites.ToListAsync();
+            var data = _context.Favorites.Where(a => a.CustomerId == cId).ToList();
+
+            return data;
         }
 
-        // GET: api/Favorites/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Favorite>> GetFavorite(int id)
-        {
-            var favorite = await _context.Favorites.FindAsync(id);
 
-            if (favorite == null)
-            {
-                return NotFound();
-            }
-
-            return favorite;
-        }
-
-        // PUT: api/Favorites/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutFavorite(int id, Favorite favorite)
-        {
-            if (id != favorite.FavoritesId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(favorite).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!FavoriteExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Favorites
+        // POST: api/TblFavorites
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Favorite>> PostFavorite(Favorite favorite)
+        public async Task<IActionResult> SaveFavorite(int customerId, int productId)
         {
-            _context.Favorites.Add(favorite);
-            await _context.SaveChangesAsync();
+            // Get the customer and product from the database
+            var customer = await _context.Customers.FindAsync(customerId);
+            var product = await _context.Products.FindAsync(productId);
 
-            return CreatedAtAction("GetFavorite", new { id = favorite.FavoritesId }, favorite);
-        }
-
-        // DELETE: api/Favorites/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFavorite(int id)
-        {
-            var favorite = await _context.Favorites.FindAsync(id);
-            if (favorite == null)
+            // Returns error if customer or product is not found
+            if (customer == null || product == null)
             {
                 return NotFound();
             }
 
-            _context.Favorites.Remove(favorite);
+            // Add a favorite
+            var favorite = new Favorite
+            {
+                CustomerId = customerId,
+                ProductId = productId,
+                ActiveStatus = true
+                //Customer = customer,
+                //Product = product
+            };
+
+            // Add the new favorite to the database and save changes
+            _context.Favorites.Add(favorite);
             await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool FavoriteExists(int id)
-        {
-            return _context.Favorites.Any(e => e.FavoritesId == id);
+            return Ok();
         }
     }
 }
