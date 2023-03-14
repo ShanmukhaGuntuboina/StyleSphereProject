@@ -43,7 +43,7 @@ namespace StyleSphere.Controllers
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
-        private bool TblCustomerExists(string email)
+        private bool CustomerExists(string email)
         {
             return _context.Customers.Any(e => e.Email == email);
         }
