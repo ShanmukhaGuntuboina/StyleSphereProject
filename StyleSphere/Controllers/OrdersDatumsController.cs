@@ -20,88 +20,74 @@ namespace StyleSphere.Controllers
             _context = context;
         }
 
-        // GET: api/OrdersDatums
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrdersDatum>>> GetOrdersData()
-        {
-            return await _context.OrdersData.ToListAsync();
-        }
-
-        // GET: api/OrdersDatums/5
+        // GET: api/TblOrderDatums/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrdersDatum>> GetOrdersDatum(int id)
+        public async Task<ActionResult<OrderData>> GetTblOrderDatumByCustomerID(int id)
         {
-            var ordersDatum = await _context.OrdersData.FindAsync(id);
-
-            if (ordersDatum == null)
+            var tblOrderDatum = _context.OrdersData
+                .Where(e => e.CustomerId == id)
+                .Select(c => new OrderData
+                {
+                    OrderId = c.OrderId,
+                    CustomerId = c.CustomerId,
+                    OrderDate = c.OrderDate,
+                    ShippingAddress = c.ShippingAddress,
+                    BillingAddress = c.BillingAddress,
+                    TrackingId = c.TrackingId,
+                    NetAmount = c.NetAmount
+                }).ToList();
+            if (tblOrderDatum == null)
             {
                 return NotFound();
             }
-
-            return ordersDatum;
+            return Ok(tblOrderDatum);
         }
 
-        // PUT: api/OrdersDatums/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrdersDatum(int id, OrdersDatum ordersDatum)
-        {
-            if (id != ordersDatum.OrderId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(ordersDatum).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrdersDatumExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/OrdersDatums
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Route("checkout")]
         [HttpPost]
-        public async Task<ActionResult<OrdersDatum>> PostOrdersDatum(OrdersDatum ordersDatum)
+        public async Task<ActionResult<string>> Checkout(CheckoutMaster order)
         {
-            _context.OrdersData.Add(ordersDatum);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrdersDatum", new { id = ordersDatum.OrderId }, ordersDatum);
-        }
-
-        // DELETE: api/OrdersDatums/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrdersDatum(int id)
-        {
-            var ordersDatum = await _context.OrdersData.FindAsync(id);
-            if (ordersDatum == null)
+            //var tblOrderDatum = _context.TblOrderData.Where(a => a.CustomerId == customerID).ToList();
+            //List<OrderDatumViewModel> orders = new List<OrderDatumViewModel>();
+            //foreach (var order in tblOrderDatum)
+            //{
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                return NotFound();
+                try
+                {
+                    OrdersDatum model = new OrdersDatum();
+                    model.OrderId = order.OrderId;
+                    model.CustomerId = order.CustomerId;
+                    model.OrderDate = order.OrderDate;
+                    model.ShippingAddress = order.ShippingAddress;
+                    model.BillingAddress = order.BillingAddress;
+                    model.TrackingId = order.TrackingId;
+                    model.NetAmount = order.NetAmount;
+                    model.ActiveStatus = order.ActiveStatus;
+                    _context.OrdersData.Add(model);
+                    await _context.SaveChangesAsync();
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        OrderDetail detailItem = new OrderDetail();
+                        detailItem.Quantity = detail.Quantity;
+                        detailItem.Price = detail.Price;
+                        detailItem.ProductMappingId = detail.ProductMappingId;
+                        detailItem.OrderId = model.OrderId;
+                        detailItem.Total = detail.Total;
+                        detailItem.ActiveStatus = true;
+                        _context.OrderDetails.Add(detailItem);
+                        await _context.SaveChangesAsync();
+                    }
+                    transaction.Commit();
+                    return Ok(model.OrderId.ToString());
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return Ok(ex.Message);
+                }
             }
-
-            _context.OrdersData.Remove(ordersDatum);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool OrdersDatumExists(int id)
-        {
-            return _context.OrdersData.Any(e => e.OrderId == id);
-        }
     }
 }

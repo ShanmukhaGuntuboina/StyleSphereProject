@@ -41,67 +41,101 @@ namespace StyleSphere.Controllers
             return product;
         }
 
-        // PUT: api/Products/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        [Route("ProductByCategory")]
+        [HttpGet]
+        public async Task<ActionResult<ProductViewModel>> GetTblProductByCategory(int id)
         {
-            if (id != product.ProductId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(product).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            List<ProductViewModel> products = new List<ProductViewModel>();
+            var tblProduct = _context.Products.Where(e => e.CategoryId == id).ToList();
+            products = _GetProductViewModels(tblProduct);
+            return Ok(Ok(products));
         }
 
-        // POST: api/Products
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Route("ProductBySubCategory")]
+        [HttpGet]
+        public async Task<ActionResult<ProductViewModel>> GetTblProductBySubCategory(int id)
+        {
+            List<ProductViewModel> products = new List<ProductViewModel>();
+            var tblProduct = _context.Products.Where(e => e.SubCategoryId == id).ToList();
+            products = _GetProductViewModels(tblProduct);
+            return Ok(products);
+        }
+
+        [Route("ProductUnderPrice")]
+        [HttpGet]
+        public async Task<ActionResult<ProductViewModel>> GetTblProductUnderPrice(decimal price)
+        {
+            List<ProductViewModel> products = new List<ProductViewModel>();
+            var tblProduct = _context.Products.Where(e => e.Price <= price).ToList();
+            products = _GetProductViewModels(tblProduct);
+            return Ok(products);
+        }
+
+        [Route("search")]
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<ProductViewModel>> SearchProduct(string SearchText)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+            List<ProductViewModel> products = new List<ProductViewModel>();
+            var tblproduct3 = _context.Products.Where(e => e.ProductName.Contains(SearchText) || e.Description.Contains(SearchText)).ToList();
+            products = _GetProductViewModels(tblproduct3);
+            return Ok(products);
         }
-
-        // DELETE: api/Products/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        private List<ProductViewModel> _GetProductViewModels(List<Product> tblproduct)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            List<ProductViewModel> products = new List<ProductViewModel>();
+            foreach (var items in tblproduct)
             {
-                return NotFound();
+                ProductViewModel model = new ProductViewModel();
+                model.ProductId = items.ProductId;
+                model.ProductName = items.ProductName;
+                model.Image1 = items.Image1;
+                model.Image2 = items.Image2;
+                model.Image3 = items.Image3;
+                model.ThumbnailImage = items.ThumbnailImage;
+                model.Price = items.Price;
+                model.Description = items.Description;
+                //model.ColorCount = items.TblProductMappings.Select(a => a.ColorId).Distinct().Count();
+                // Ratings Count
+                var ratingsData = _context.Ratings.Where(a => a.ProductId == items.ProductId).ToList();
+                model.NoOfRatings = ratingsData.Count();
+                if (ratingsData.Count() > 0)
+                    model.ratings = (ratingsData.Sum(a => a.Rating1) / ratingsData.Count());
+                else
+                    model.ratings = 0;
+
+                List<SizesMaster> sizeList = new List<SizesMaster>();
+                List<ColorMaster> ColorList = new List<ColorMaster>();
+                var mapppingsData = _context.ProductMappings.Where(a => a.ProductId == items.ProductId).ToList();
+                model.ColorCount = mapppingsData.Select(a => a.ColorId).Distinct().Count();
+                foreach (var item in mapppingsData)
+                {
+                    var colorData = _context.ColorMasters.Where(a => a.ColorId == item.ColorId).FirstOrDefault();
+                    var sizeData = _context.SizesMasters.Where(a => a.SizeId == item.SizeId).FirstOrDefault();
+
+                    if (sizeData != null)
+                    {
+                        SizesMaster objSize = new SizesMaster();
+                        objSize.SizeId = item.SizeId;
+                        objSize.Eusize = sizeData.Eusize;
+                        objSize.Ussize = sizeData.Ussize;
+                        sizeList.Add(objSize);
+                    }
+
+                    if (colorData != null)
+                    {
+                        ColorMaster objColor = new ColorMaster();
+                        objColor.ColorId = item.ColorId;
+                        objColor.Color = colorData.Color;
+                        ColorList.Add(objColor);
+                    }
+                }
+                model.ColorList = ColorList;
+                model.sizeList = sizeList;
+                products.Add(model);
             }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
+            return products;
         }
     }
 }
+
+    
