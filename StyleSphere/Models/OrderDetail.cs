@@ -7,7 +7,7 @@ public partial class OrderDetail
 {
     public int OrderDetailsId { get; set; }
 
-    public string Quantity { get; set; } = null!;
+    public int Quantity { get; set; }
 
     public decimal Price { get; set; }
 
@@ -15,7 +15,7 @@ public partial class OrderDetail
 
     public int OrderId { get; set; }
 
-    public string Total { get; set; } = null!;
+    public decimal Total { get; set; }
 
     public bool ActiveStatus { get; set; }
 
