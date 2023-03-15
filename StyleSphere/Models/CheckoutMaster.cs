@@ -4,7 +4,7 @@
     {
         public CheckoutMaster()
         {
-            OrderDetails = new List<CheckoutDetails>();
+            OrderDetails = new List<Checkout>();
         }
         public int OrderId { get; set; }
 
@@ -22,6 +22,6 @@
 
         public bool ActiveStatus { get; set; }
 
-        public virtual ICollection<CheckoutDetails> OrderDetails { get; set; }
+        public virtual ICollection<Checkout> OrderDetails { get; set; }
     }
 }

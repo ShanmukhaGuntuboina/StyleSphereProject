@@ -1,6 +1,6 @@
 ﻿namespace StyleSphere.Models
 {
-    public class CheckoutDetails
+    public class Checkout
     {
         public int OrderDetailsId { get; set; }
 
