@@ -5,26 +5,25 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Abstractions;
 using StyleSphere.Models;
 
 namespace StyleSphere.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersDatumsController : ControllerBase
+    public class TblOrderDatumsController : ControllerBase
     {
         private readonly StyleSphereDbContext _context;
 
-        public OrdersDatumsController(StyleSphereDbContext context)
+        public TblOrderDatumsController(StyleSphereDbContext context)
         {
             _context = context;
         }
-
-        // GET: api/TblOrderDatums/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderData>> GetTblOrderDatumByCustomerID(int id)
+        public async Task<ActionResult<OrderData>> GetOrderDatumByCustomerID(int id)
         {
-            var tblOrderDatum = _context.OrdersData
+            var OrdersDatum = _context.OrdersData
                 .Where(e => e.CustomerId == id)
                 .Select(c => new OrderData
                 {
@@ -36,21 +35,17 @@ namespace StyleSphere.Controllers
                     TrackingId = c.TrackingId,
                     NetAmount = c.NetAmount
                 }).ToList();
-            if (tblOrderDatum == null)
+            if (OrdersDatum == null)
             {
                 return NotFound();
             }
-            return Ok(tblOrderDatum);
+            return Ok(OrdersDatum);
         }
 
         [Route("checkout")]
         [HttpPost]
         public async Task<ActionResult<string>> Checkout(CheckoutMaster order)
         {
-            //var tblOrderDatum = _context.TblOrderData.Where(a => a.CustomerId == customerID).ToList();
-            //List<OrderDatumViewModel> orders = new List<OrderDatumViewModel>();
-            //foreach (var order in tblOrderDatum)
-            //{
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
