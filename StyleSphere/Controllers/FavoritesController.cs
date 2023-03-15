@@ -19,11 +19,10 @@ namespace StyleSphere.Controllers
         {
             _context = context;
         }
-
-        [HttpGet("{cId}")]
-        public List<Favorite> GetFavoritesForCustomer(int cId)
+        [HttpGet("{CusId}")]
+        public List<Favorite> GetFavoritesForCustomer(int CusId)
         {
-            var data = _context.Favorites.Where(a => a.CustomerId == cId).ToList();
+            var data = _context.Favorites.Where(a => a.CustomerId == CusId).ToList();
 
             return data;
         }
@@ -34,24 +33,22 @@ namespace StyleSphere.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveFavorite(int customerId, int productId)
         {
-            // Get the customer and product from the database
+            //Get the customer and product from the database
             var customer = await _context.Customers.FindAsync(customerId);
             var product = await _context.Products.FindAsync(productId);
 
-            // Returns error if customer or product is not found
+            //Returns error if customer or product is not found
             if (customer == null || product == null)
             {
                 return NotFound();
             }
 
-            // Add a favorite
+            //Add a favorite
             var favorite = new Favorite
             {
                 CustomerId = customerId,
                 ProductId = productId,
                 ActiveStatus = true
-                //Customer = customer,
-                //Product = product
             };
 
             // Add the new favorite to the database and save changes

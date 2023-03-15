@@ -20,7 +20,7 @@ namespace StyleSphere.Controllers
             _context = context;
         }
 
-        [Route("login")]
+        [Route("Login")]
         [HttpGet]
         public async Task<ActionResult<Customer>> LoginCustomer(string email, string password)
         {

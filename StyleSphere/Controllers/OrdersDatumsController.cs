@@ -42,11 +42,11 @@ namespace StyleSphere.Controllers
             return Ok(OrdersDatum);
         }
 
-        [Route("checkout")]
+        [Route("Checkout")]
         [HttpPost]
         public async Task<ActionResult<string>> Checkout(CheckoutMaster order)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction=_context.Database.BeginTransaction())
             {
                 try
                 {

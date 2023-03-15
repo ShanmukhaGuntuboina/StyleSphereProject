@@ -14,19 +14,16 @@ namespace StyleSphere.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly StyleSphereDbContext _context;
-
         public ProductsController(StyleSphereDbContext context)
         {
             _context = context;
         }
-
         // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             return await _context.Products.ToListAsync();
         }
-
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
@@ -43,7 +40,7 @@ namespace StyleSphere.Controllers
 
         [Route("ProductByCategory")]
         [HttpGet]
-        public async Task<ActionResult<ProductViewModel>> GetTblProductByCategory(int id)
+        public async Task<ActionResult<ProductViewModel>> GetProductByCategory(int id)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
             var tblProduct = _context.Products.Where(e => e.CategoryId == id).ToList();
@@ -53,7 +50,7 @@ namespace StyleSphere.Controllers
 
         [Route("ProductBySubCategory")]
         [HttpGet]
-        public async Task<ActionResult<ProductViewModel>> GetTblProductBySubCategory(int id)
+        public async Task<ActionResult<ProductViewModel>> GetProductBySubCategory(int id)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
             var tblProduct = _context.Products.Where(e => e.SubCategoryId == id).ToList();
@@ -63,7 +60,7 @@ namespace StyleSphere.Controllers
 
         [Route("ProductUnderPrice")]
         [HttpGet]
-        public async Task<ActionResult<ProductViewModel>> GetTblProductUnderPrice(decimal price)
+        public async Task<ActionResult<ProductViewModel>> GetProductUnderPrice(decimal price)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
             var tblProduct = _context.Products.Where(e => e.Price <= price).ToList();
@@ -71,7 +68,7 @@ namespace StyleSphere.Controllers
             return Ok(products);
         }
 
-        [Route("search")]
+        [Route("Search")]
         [HttpPost]
         public async Task<ActionResult<ProductViewModel>> SearchProduct(string SearchText)
         {
@@ -94,15 +91,12 @@ namespace StyleSphere.Controllers
                 model.ThumbnailImage = items.ThumbnailImage;
                 model.Price = items.Price;
                 model.Description = items.Description;
-                //model.ColorCount = items.TblProductMappings.Select(a => a.ColorId).Distinct().Count();
-                // Ratings Count
                 var ratingsData = _context.Ratings.Where(a => a.ProductId == items.ProductId).ToList();
                 model.NoOfRatings = ratingsData.Count();
                 if (ratingsData.Count() > 0)
                     model.ratings = (ratingsData.Sum(a => a.Rating1) / ratingsData.Count());
                 else
                     model.ratings = 0;
-
                 List<SizesMaster> sizeList = new List<SizesMaster>();
                 List<ColorMaster> ColorList = new List<ColorMaster>();
                 var mapppingsData = _context.ProductMappings.Where(a => a.ProductId == items.ProductId).ToList();
@@ -120,7 +114,6 @@ namespace StyleSphere.Controllers
                         objSize.Ussize = sizeData.Ussize;
                         sizeList.Add(objSize);
                     }
-
                     if (colorData != null)
                     {
                         ColorMaster objColor = new ColorMaster();
