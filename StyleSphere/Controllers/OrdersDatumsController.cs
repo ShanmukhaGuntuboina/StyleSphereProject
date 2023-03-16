@@ -40,7 +40,30 @@ namespace StyleSphere.Controllers
                 return NotFound();
             }
             return Ok(OrdersDatum);
+
         }
+        public async Task<ActionResult<OrderDetail>> GetOrderDataByCustomerID(int id)
+        {
+            var OrderDetail = _context.OrderDetails
+                .Where(e => e.OrderDetailsId == id)
+                .Select(c => new OrderDetail
+                {
+                    OrderDetailsId = c.OrderDetailsId,
+                    Quantity = c.Quantity,
+                    Price = c.Price,
+                    ProductMappingId = c.ProductMappingId,
+                    OrderId = c.OrderId,
+                    Total = c.Total,
+                    ActiveStatus = c.ActiveStatus
+                }).ToList();
+            if (OrderDetail == null)
+            {
+                return NotFound();
+            }
+            return Ok(OrderDetail);
+
+        }
+
 
         [Route("Checkout")]
         [HttpPost]
