@@ -12,11 +12,11 @@ namespace StyleSphere.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TblOrderDatumsController : ControllerBase
+    public class OrderDatumsController : ControllerBase
     {
         private readonly StyleSphereDbContext _context;
 
-        public TblOrderDatumsController(StyleSphereDbContext context)
+        public OrderDatumsController(StyleSphereDbContext context)
         {
             _context = context;
         }

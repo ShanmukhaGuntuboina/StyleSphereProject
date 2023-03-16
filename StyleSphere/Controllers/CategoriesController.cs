@@ -20,7 +20,7 @@ namespace StyleSphere.Controllers
             _context = context;
         }
 
-        // GET: api/TblCategories
+        // GET: api/Categories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {

@@ -28,7 +28,7 @@ namespace StyleSphere.Controllers
         }
 
 
-        // POST: api/TblFavorites
+        // POST: api/Favorite
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<IActionResult> SaveFavorite(int customerId, int productId)
