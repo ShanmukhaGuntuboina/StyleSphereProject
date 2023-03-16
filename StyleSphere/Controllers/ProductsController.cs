@@ -43,8 +43,8 @@ namespace StyleSphere.Controllers
         public async Task<ActionResult<ProductViewModel>> GetProductByCategory(int id)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
-            var tblProduct = _context.Products.Where(e => e.CategoryId == id).ToList();
-            products = _GetProductViewModels(tblProduct);
+            var Product = _context.Products.Where(e => e.CategoryId == id).ToList();
+            products = _GetProductViewModels(Product);
             return Ok(Ok(products));
         }
 
@@ -53,8 +53,8 @@ namespace StyleSphere.Controllers
         public async Task<ActionResult<ProductViewModel>> GetProductBySubCategory(int id)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
-            var tblProduct = _context.Products.Where(e => e.SubCategoryId == id).ToList();
-            products = _GetProductViewModels(tblProduct);
+            var Product = _context.Products.Where(e => e.SubCategoryId == id).ToList();
+            products = _GetProductViewModels(Product);
             return Ok(products);
         }
 
@@ -63,8 +63,8 @@ namespace StyleSphere.Controllers
         public async Task<ActionResult<ProductViewModel>> GetProductUnderPrice(decimal price)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
-            var tblProduct = _context.Products.Where(e => e.Price <= price).ToList();
-            products = _GetProductViewModels(tblProduct);
+            var Product = _context.Products.Where(e => e.Price <= price).ToList();
+            products = _GetProductViewModels(Product);
             return Ok(products);
         }
 
@@ -73,8 +73,8 @@ namespace StyleSphere.Controllers
         public async Task<ActionResult<ProductViewModel>> SearchProduct(string SearchText)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
-            var tblproduct3 = _context.Products.Where(e => e.ProductName.Contains(SearchText) || e.Description.Contains(SearchText)).ToList();
-            products = _GetProductViewModels(tblproduct3);
+            var product = _context.Products.Where(e => e.ProductName.Contains(SearchText) || e.Description.Contains(SearchText)).ToList();
+            products = _GetProductViewModels(product);
             return Ok(products);
         }
         private List<ProductViewModel> _GetProductViewModels(List<Product> tblproduct)
