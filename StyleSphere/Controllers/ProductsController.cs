@@ -77,10 +77,10 @@ namespace StyleSphere.Controllers
             products = _GetProductViewModels(product);
             return Ok(products);
         }
-        private List<ProductViewModel> _GetProductViewModels(List<Product> tblproduct)
+        private List<ProductViewModel> _GetProductViewModels(List<Product> product)
         {
             List<ProductViewModel> products = new List<ProductViewModel>();
-            foreach (var items in tblproduct)
+            foreach (var items in product)
             {
                 ProductViewModel model = new ProductViewModel();
                 model.ProductId = items.ProductId;
